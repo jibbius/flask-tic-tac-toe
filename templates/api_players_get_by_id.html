@@ -1,0 +1,27 @@
+<h5>Input</h5>
+<form id="{{api_endpoint.handle}}_form">
+    <label class="form-label" for="{{api_endpoint.handle}}_player_id">Player Id</label>
+    <input class="form-control" id="{{api_endpoint.handle}}_player_id" name="{{api_endpoint.handle}}_player_id" type="text" value="1"/>
+    <input class="btn btn-primary mt-3 mb-3" type="submit" value="{{ api_endpoint.method }}">
+</form>
+
+<script>
+    form = document.getElementById("{{api_endpoint.handle}}_form");
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        /* Logic to build URL */
+        player_id = document.getElementById('{{api_endpoint.handle}}_player_id').value
+        url = '{{api_endpoint.url()}}'.replace(".PLAYER_ID.", player_id);
+
+        fetch(url, {
+            method: "{{api_endpoint.method}}",
+            headers:  {
+                'Content-type': 'application/json'
+            },
+        })
+        .then(res => res.json())
+        .then(data => document.getElementById('{{api_endpoint.handle}}_output').textContent = JSON.stringify(data, null, 2))
+        .catch(error => console.log(error))
+    });
+</script>

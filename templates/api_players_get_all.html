@@ -1,0 +1,19 @@
+<form id="{{api_endpoint.handle}}_form">
+    <input class="btn btn-primary mt-3 mb-3" type="submit" value="{{ api_endpoint.method }}">
+</form>
+<script>
+    form = document.getElementById("{{api_endpoint.handle}}_form");
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        url = '{{ api_endpoint.url() }}';
+        fetch(url, {
+            method: "{{ api_endpoint.method }}",
+            headers:  {
+                'Content-type': 'application/json'
+            },
+        })
+        .then(res => res.json())
+        .then(data => document.getElementById('{{api_endpoint.handle}}_output').textContent = JSON.stringify(data, null, 2))
+        .catch(error => console.log(error))
+    });
+</script>
