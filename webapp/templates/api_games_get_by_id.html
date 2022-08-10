@@ -1,14 +1,22 @@
+<h5>Input</h5>
 <form id="{{api_endpoint.handle}}_form">
+    <label class="form-label" for="{{api_endpoint.handle}}_game_id">game Id</label>
+    <input class="form-control" id="{{api_endpoint.handle}}_game_id" name="{{api_endpoint.handle}}_game_id" type="number" value="1"/>
     <input class="btn btn-primary mt-3 mb-3" type="submit" value="{{ api_endpoint.method }}">
 </form>
+
 <script>
     form = document.getElementById("{{api_endpoint.handle}}_form");
     form.addEventListener("submit", (event) => {
         event.preventDefault();
         document.getElementById('{{api_endpoint.handle}}_output').textContent = ""
-        url = '{{ api_endpoint.url() }}';
+
+        /* Logic to build URL */
+        game_id = document.getElementById('{{api_endpoint.handle}}_game_id').value
+        url = '{{api_endpoint.url()}}'.replace(".GAME_ID.", game_id);
+
         fetch(url, {
-            method: "{{ api_endpoint.method }}",
+            method: "{{api_endpoint.method}}",
             headers:  {
                 'Content-type': 'application/json'
             },

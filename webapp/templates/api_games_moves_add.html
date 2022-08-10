@@ -1,0 +1,54 @@
+<h5>Input</h5>
+<form id="{{api_endpoint.handle}}_form">
+    <div class="mb-3">
+        <label class="form-label" for="{{api_endpoint.handle}}_game_id">Game id</label>
+        <input class="form-control" id="{{api_endpoint.handle}}_game_id" name="{{api_endpoint.handle}}_game_id" required type="number" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="{{api_endpoint.handle}}_move_sequence">Move Sequence</label>
+        <input class="form-control" id="{{api_endpoint.handle}}_move_sequence" name="{{api_endpoint.handle}}_move_sequence" required type="number" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="{{api_endpoint.handle}}_player_id">Player id</label>
+        <input class="form-control" id="{{api_endpoint.handle}}_player_id" name="{{api_endpoint.handle}}_player_id" required type="number" />
+    </div>
+    <div class="mb-3">
+        {%  for position in range(1,10) %}
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="{{api_endpoint.handle}}_position" id="{{api_endpoint.handle}}_position_{{ position }}" value="{{ position }}" required>
+                <label class="form-check-label" for="{{api_endpoint.handle}}_position_{{ position }}">{{ position }}</label>
+            </div>
+            {% if position % 3 == 0 %}
+                <br>
+            {% endif %}
+        {%  endfor %}
+    </div>
+    <input class="btn btn-primary mt-3 mb-3" type="submit" value="{{ api_endpoint.method }}">
+</form>
+
+<script>
+    form = document.getElementById("{{api_endpoint.handle}}_form");
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        document.getElementById('{{api_endpoint.handle}}_output').textContent = ""
+
+        /* Logic to build URL */
+        game_id = document.getElementById('{{api_endpoint.handle}}_game_id').value
+        move_sequence = document.getElementById('{{api_endpoint.handle}}_move_sequence').value
+        url = '{{api_endpoint.url()}}'.replace(".GAME_ID.", game_id).replace(".MOVE_SEQUENCE.", move_sequence);
+        data = {
+            'player_id': document.getElementById('{{api_endpoint.handle}}_player_id').value,
+            'position': document.querySelector('input[name="{{api_endpoint.handle}}_position"]:checked').value
+        };
+        fetch(url, {
+            method: '{{api_endpoint.method}}',
+            headers:  {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => document.getElementById('{{api_endpoint.handle}}_output').textContent = JSON.stringify(data, null, 2))
+        .catch(error => console.log(error))
+    });
+</script>

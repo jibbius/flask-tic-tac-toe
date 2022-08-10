@@ -2,7 +2,7 @@
 <form id="{{api_endpoint.handle}}_form">
     <div class="mb-3">
         <label class="form-label" for="{{api_endpoint.handle}}_player_id">Player Id</label>
-        <input class="form-control" id="{{api_endpoint.handle}}_player_id" name="{{api_endpoint.handle}}_player_id" type="text" value="1"/>
+        <input class="form-control" id="{{api_endpoint.handle}}_player_id" name="{{api_endpoint.handle}}_player_id" type="number" value="1"/>
     </div>
     <div class="mb-3">
         <label class="form-label" for="{{api_endpoint.handle}}_name">Player Name</label>
@@ -11,12 +11,12 @@
     <div class="mb-3">
 
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="{{api_endpoint.handle}}_type" id="{{api_endpoint.handle}}_type_human" value="human" required>
-            <label class="form-check-label" for="{{api_endpoint.handle}}_type_human">Human</label>
+            <input class="form-check-input" type="radio" name="{{api_endpoint.handle}}_player_type" id="{{api_endpoint.handle}}_player_type_human" value="human" required>
+            <label class="form-check-label" for="{{api_endpoint.handle}}_player_type_human">Human</label>
         </div>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="{{api_endpoint.handle}}_type" id="{{api_endpoint.handle}}_type_computer" value="computer" required>
-            <label class="form-check-label" for="{{api_endpoint.handle}}_type_computer">Computer</label>
+            <input class="form-check-input" type="radio" name="{{api_endpoint.handle}}_player_type" id="{{api_endpoint.handle}}_player_type_computer" value="computer" required>
+            <label class="form-check-label" for="{{api_endpoint.handle}}_player_type_computer">Computer</label>
         </div>
 
     </div>
@@ -27,6 +27,7 @@
     form = document.getElementById("{{api_endpoint.handle}}_form");
     form.addEventListener("submit", (event) => {
         event.preventDefault();
+        document.getElementById('{{api_endpoint.handle}}_output').textContent = ""
 
         /* Logic to build URL */
         player_id = document.getElementById('{{api_endpoint.handle}}_player_id').value
@@ -34,7 +35,7 @@
 
         data = {
             'name': document.getElementById('{{api_endpoint.handle}}_name').value,
-            'type': document.querySelector('input[name="{{api_endpoint.handle}}_type"]:checked').value
+            'player_type': document.querySelector('input[name="{{api_endpoint.handle}}_player_type"]:checked').value
         };
         fetch(url, {
             method: '{{api_endpoint.method}}',

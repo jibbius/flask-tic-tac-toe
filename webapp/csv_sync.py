@@ -1,7 +1,6 @@
 import csv
 from webapp.models import Player
 
-
 class PlayerCsv:
     csv_filename : str
 
@@ -15,7 +14,7 @@ class PlayerCsv:
             for idx, playerData in enumerate(reader):
                 allowablePlayerData = {
                     "name":playerData["name"],
-                    "type":playerData["type"],
+                    "player_type":playerData["player_type"],
                 }
                 player_list.append(Player(**allowablePlayerData))
         return player_list
@@ -26,11 +25,11 @@ class PlayerCsv:
         player_list = Player.get_players()
         with open(self.csv_filename, 'w', newline="") as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['id', 'name', 'type'])
+            writer.writerow(['id', 'name', 'player_type'])
 
             player: Player
             for player in player_list:
                 if player:
-                    writer.writerow([player.id, player.name, player.type])
+                    writer.writerow([player.id, player.name, player.player_type])
 
         return True

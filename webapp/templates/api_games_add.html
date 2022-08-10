@@ -1,0 +1,37 @@
+<h5>Input</h5>
+<form id="{{api_endpoint.handle}}_form">
+
+    <div class="mb-3">
+        <label class="form-label" for="{{api_endpoint.handle}}_player_one_id">Player 1 id</label>
+        <input class="form-control" id="{{api_endpoint.handle}}_player_one_id" name="{{api_endpoint.handle}}_player_one_id" required type="number" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="{{api_endpoint.handle}}_player_two_id">Player 2 id</label>
+        <input class="form-control" id="{{api_endpoint.handle}}_player_two_id" name="{{api_endpoint.handle}}_player_two_id" required type="number" />
+    </div>
+    <input class="btn btn-primary mt-3 mb-3" type="submit" value="{{ api_endpoint.method }}">
+</form>
+
+<script>
+    form = document.getElementById("{{api_endpoint.handle}}_form");
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        document.getElementById('{{api_endpoint.handle}}_output').textContent = ""
+
+        url = '{{api_endpoint.url()}}';
+        data = {
+            'player_one_id': document.getElementById('{{api_endpoint.handle}}_player_one_id').value,
+            'player_two_id': document.getElementById('{{api_endpoint.handle}}_player_two_id').value,
+        };
+        fetch(url, {
+            method: '{{api_endpoint.method}}',
+            headers:  {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => document.getElementById('{{api_endpoint.handle}}_output').textContent = JSON.stringify(data, null, 2))
+        .catch(error => console.log(error))
+    });
+</script>
