@@ -3,7 +3,8 @@ from json import dumps
 from flask import Flask, render_template, request
 from flask_migrate import Migrate
 
-from webapp.models import ApiEndpoint, PlayerCsv
+from webapp.csv_sync import PlayerCsv
+from webapp.helpers import ApiEndpoint
 from webapp.models import Player
 from webapp.models import db
 
@@ -14,12 +15,16 @@ def create_app(config):
     db.init_app(app)
     app.app_context().push()
     db.create_all()
-    player_csv = PlayerCsv('seed_data_players.csv')
-    player_csv.synchronize_players_from_file()
 
-    # If the Data has any further updates, write these to the file:
-    Player.e_added.add_listener(player_csv.synchronize_players_to_file)
-    Player.e_updated.add_listener(player_csv.synchronize_players_to_file)
+    player_csv = PlayerCsv('seed_data_players.csv')
+
+    ExistingData = Player.get_players()
+    if not ExistingData:
+        player_csv.synchronize_players_from_file()
+
+        # If the Data has any further updates, write these to the file:
+        # Player.e_added.add_listener(player_csv.synchronize_players_to_file)
+        # Player.e_updated.add_listener(player_csv.synchronize_players_to_file)
 
     app.jinja_env.globals.update(navigation_items=[
         {"label": "Home", "function": "root"},
