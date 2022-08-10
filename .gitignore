@@ -1,4 +1,4 @@
 .idea/
 __pycache__/
 venv
-models/__pycache__/
+webapp/models/__pycache__/

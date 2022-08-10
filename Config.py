@@ -1,6 +1,7 @@
 class Config:
     pass
 
+
 class DevConfig(Config):
     ENV = "Development"
     DEBUG = True
