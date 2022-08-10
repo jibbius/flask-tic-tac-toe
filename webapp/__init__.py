@@ -1,19 +1,25 @@
+from json import dumps
+
 from flask import Flask, render_template, request
 from flask_migrate import Migrate
 
-from webapp.models import ApiEndpoint
+from webapp.models import ApiEndpoint, PlayerCsv
 from webapp.models import Player
-from webapp.models import PlayerCsv
 from webapp.models import db
 
 
-
 def create_app(config):
-
     app = Flask(__name__)
     app.config.from_object(config)
     db.init_app(app)
-    migrate = Migrate(app, db)
+    app.app_context().push()
+    db.create_all()
+    player_csv = PlayerCsv('seed_data_players.csv')
+    player_csv.synchronize_players_from_file()
+
+    # If the Data has any further updates, write these to the file:
+    Player.e_added.add_listener(player_csv.synchronize_players_to_file)
+    Player.e_updated.add_listener(player_csv.synchronize_players_to_file)
 
     app.jinja_env.globals.update(navigation_items=[
         {"label": "Home", "function": "root"},
@@ -22,8 +28,6 @@ def create_app(config):
         # {"label": "Statistics", "function": "ui_stats"},
         {"label": "API Index", "function": "api_index"}
     ])
-    player_csv = PlayerCsv('seed_data_players.csv')
-    player_csv.synchronize_players('from_file')
 
     @app.route('/')  # define the first route, the home route
     def root():  # define the function that responds to the above route
@@ -49,27 +53,27 @@ def create_app(config):
                         handle='api_players_get_all',
                         method='GET',
                         template='api_players_get_all.html'
-            ),
+                        ),
             ApiEndpoint(model='player',
                         title='Get Player by id',
                         handle='api_players_get_by_id',
                         method='GET',
                         template='api_players_get_by_id.html',
                         default_params={'player_id': '.PLAYER_ID.'}
-            ),
+                        ),
             ApiEndpoint(model='player',
                         title='Add Player',
                         handle='api_players_add',
                         method='POST',
                         template='api_players_add.html'
-            ),
+                        ),
             ApiEndpoint(model='player',
                         title='Update Player',
                         handle='api_players_update_by_id',
                         method='PUT',
                         template='api_players_update_by_id.html',
                         default_params={'player_id': '.PLAYER_ID.'}
-            ),
+                        ),
         ]
         return render_template("api_index.html", api_endpoint_list=api_endpoint_list)
 
@@ -83,16 +87,15 @@ def create_app(config):
             if all(param in required_params for param in request_params):
                 player = Player(name=request_params['name'], type=request_params['type'])
         if player:
-            player_csv.synchronize_players('to_file', True, Player.get_players())
             status_code = 201  # Created
         else:
             status_code = 400  # Bad request
-        return {"status": status_code, "data": player}
+        return {"status": status_code, "data": player.to_dict()}
 
     @app.route("/api/players/", methods=["GET"])
     def api_players_get_all():
         players = Player.get_players()
-        return {"status": 200, "data": players}
+        return {"status": 200, "data": [player.to_dict() for player in players]}
 
     @app.route("/api/players/<player_id>/", methods=["GET"])
     def api_players_get_by_id(player_id):
@@ -101,7 +104,7 @@ def create_app(config):
             status_code = 200
         else:
             status_code = 400  # Bad request
-        return {"status": status_code, "data": player}
+        return {"status": status_code, "data": player.to_dict()}
 
     @app.route("/api/players/<player_id>/", methods=["PUT"])
     def api_players_update_by_id(player_id):
@@ -111,12 +114,11 @@ def create_app(config):
             params = request.json
             updated_player = Player.update_player_by_id(player_id, params)
             if updated_player:
-                player_csv.synchronize_players('to_file', True, Player.get_players())
                 status_code = 200  # OK
             else:
                 status_code = 400  # Bad request
         else:
             status_code = 400  # Bad request
-        return {"status": status_code, "data": updated_player}
+        return {"status": status_code, "data": updated_player.to_dict()}
 
     return app

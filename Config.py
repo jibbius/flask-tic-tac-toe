@@ -5,7 +5,7 @@ class Config:
 class DevConfig(Config):
     ENV = "Development"
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:" # sqlite:///database.db
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # We need to create a secret key, if we want to use session data.

@@ -6,3 +6,4 @@ if __name__ == '__main__':
     config = DevConfig()
     flask_app = create_app(config)
     flask_app.run()
+
