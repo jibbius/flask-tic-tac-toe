@@ -1,10 +1,9 @@
-from enum import Enum
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event as sql_event
 from sqlalchemy.engine import Engine
 
 from webapp.event import Event as Event
+from webapp.helpers import GameStatus, WinningPlayerNum, GamePosition
 
 db = SQLAlchemy()
 
@@ -75,29 +74,6 @@ class Player(db.Model):
         return updated_player
 
 
-class GameStatus(Enum):
-    IN_PROGRESS = 1
-    FINISHED = 2
-
-
-class WinningPlayerNum(Enum):
-    PLAYER_ONE = 1
-    PLAYER_TWO = 2
-    TIE = 3
-
-
-class GamePosition(Enum):
-    TOP_ROW_LEFT_COL = 1
-    TOP_ROW_CENTER_COL = 2
-    TOP_ROW_RIGHT_COL = 3
-    MIDDLE_ROW_LEFT_COL = 4
-    MIDDLE_ROW_CENTER_COL = 5
-    MIDDLE_ROW_RIGHT_COL = 6
-    BOTTOM_ROW_LEFT_COL = 7
-    BOTTOM_ROW_CENTER_COL = 8
-    BOTTOM_ROW_RIGHT_COL = 9
-
-
 class Game(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     player_one_id = db.Column(db.Integer())
@@ -164,14 +140,14 @@ class Game(db.Model):
     def get_valid_next_positions(self):
         return [GamePosition(idx + 1) for idx, value in enumerate(self.board_state) if value == "0"]
 
-    def to_dict(self, fullDetail=True):
+    def to_dict(self, full_detail=True):
         game_as_dict = {
             "id": self.id,
             "player_one_id": self.player_one_id,
             "player_two_id": self.player_two_id,
             "status": self.status.name,
         }
-        if fullDetail:
+        if full_detail:
             game_as_dict.update({
                 "next_move_sequence": self.next_move_sequence,
                 "board_state": self.board_state,
@@ -211,7 +187,7 @@ class Game(db.Model):
     def append_move(self, player_number: int, position: GamePosition):
         updated_board_state = list(self.board_state)
 
-        # Set position as either 1 or 2:
+        # noinspection PyTypeChecker
         updated_board_state[position.value - 1] = str(player_number)
 
         updated_board_state = "".join(updated_board_state)
@@ -236,12 +212,13 @@ class Game(db.Model):
     def check_for_winner(cls, board_state_str):
         b = list(board_state_str)
         for cond in cls.winning_combinations:
+            # noinspection PyTypeChecker
             line = "".join([b[gp.value - 1] for gp in cond])
             if line == "111":
                 return WinningPlayerNum.PLAYER_ONE
             if line == "222":
                 return WinningPlayerNum.PLAYER_TWO
-        if not "0" in b:
+        if "0" not in b:
             return WinningPlayerNum.TIE
         return None  # No winner
 
@@ -256,24 +233,19 @@ class GameMove(db.Model):
     position = db.Column(db.Enum(GamePosition))
     e_added = Event()
 
-    def __init__(self, game_id: int, move_sequence: int, player_id: int, position: GamePosition):
+    def __init__(self, game_id: int, move_sequence: int, player_id: int, position):
 
         self.game = Game.get_game_by_id(int(game_id))
         self.player_number = self.game.next_move_player_number
         self.player = Player.get_player_by_id(int(player_id))
         self.move_sequence = int(move_sequence)
         if type(position) == str:
-            try:
-                self.position = GamePosition(int(position))
-            except:
-                raise ValueError("Unexpected GamePosition string specified")
+            self.position = GamePosition(int(position))
         elif type(position) == int:
-            try:
-                self.position = GamePosition(position)
-            except:
-                raise ValueError("Unexpected GamePosition integer specified")
-        elif type(position) != GamePosition:
-            raise TypeError("Unexpected GamePosition type")
+            self.position = GamePosition(position)
+
+        if type(position) != GamePosition:
+            raise TypeError("Unexpected GamePosition")
 
         if not self.game:
             raise ValueError("Invalid GameID")
@@ -282,7 +254,8 @@ class GameMove(db.Model):
             raise ValueError(f"No further moves allowed; Game status = {self.game.status.name}")
 
         if self.move_sequence != self.game.next_move_sequence:
-            raise ValueError(f"Unexpected move sequence (expected {self.game.next_move_sequence}, got {self.move_sequence})")
+            raise ValueError(
+                f"Unexpected move sequence (expected {self.game.next_move_sequence}, got {self.move_sequence})")
 
         if not self.player:
             raise ValueError("Invalid PlayerID")
@@ -291,12 +264,18 @@ class GameMove(db.Model):
             if self.player_number == 1:
                 if self.player.id != self.game.player_one_id:
                     raise ValueError(
-                        f"It is Player 1's turn; (expected PlayerID {self.game.player_one_id}, got PlayerID {self.player.id})"
+                        "It is Player 1's turn; (expected PlayerID {}), got PlayerID {})".format(
+                            self.game.player_one_id,
+                            self.player.id
+                        )
                     )
             elif self.player_number == 2:
                 if self.player.id != self.game.player_two_id:
                     raise ValueError(
-                        f"It is Player 2's turn; (expected PlayerID {self.game.player_two_id}, got PlayerID {self.player.id})"
+                        "It is Player 2's turn; (expected PlayerID {}), got PlayerID {})".format(
+                            self.game.player_two_id,
+                            self.player.id
+                        )
                     )
 
         if self.position not in self.game.get_valid_next_positions():

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, flash
 from flask_migrate import Migrate
 
 from webapp.csv_sync import PlayerCsv
@@ -27,8 +27,8 @@ def create_app(config):
 
     app.jinja_env.globals.update(navigation_items=[
         {"label": "Home", "function": "root"},
-        # {"label": "Start a new game", "function": "ui_start_game"},
-        # {"label": "Resume/join a game", "function": "ui_join_game"},
+        {"label": "New game", "function": "ui_games_new"},
+        {"label": "Existing games", "function": "ui_games_get_all"},
         # {"label": "Statistics", "function": "ui_stats"},
         {"label": "API Index", "function": "api_index"}
     ])
@@ -38,8 +38,50 @@ def create_app(config):
         return render_template("index.html")
 
     @app.route('/game/new')
-    def ui_start_game():  # put application's code here
-        return '<a href="/">Return to menu</a>'
+    def ui_games_new():  # put application's code here
+        return render_template("ui_games_new.html", player_list=Player.get_players())
+
+    @app.route("/games/", methods=["POST"])
+    def ui_games_add():
+        # return render_template("reviews_index.html")
+
+        errorMessage = None
+        game = None
+        player_one_id = request.values.get('player_one_id')
+        player_two_id = request.values.get('player_two_id')
+
+        if all([player_one_id, player_two_id]):
+            try:
+                game = Game(
+                    player_one_id=int(player_one_id),
+                    player_two_id=int(player_two_id)
+                )
+                game_url = url_for('ui_games_get_by_id',game_id=game.id)
+                flash(f"Game created successfully: <a href='{game_url}'>Join game</a>", 'success')
+            except ValueError as err:
+                errorMessage += err.args[0]
+
+        if not game:
+            if not errorMessage:
+                errorMessage = "Unexpected Error"
+            flash(f"{errorMessage}", 'error')
+
+        return render_template("ui_games_get_all.html", all_games=Game.get_games())
+
+    @app.route("/games/", methods=["GET"])
+    def ui_games_get_all():
+        return render_template("ui_games_get_all.html", all_games=Game.get_games())
+
+    @app.route("/games/<game_id>/", methods=["GET"])
+    def ui_games_get_by_id(game_id):
+        response = {'status': None, 'data': []}
+        game = Game.get_game_by_id(game_id)
+        if game:
+            response['status'] = 200
+            response['data'] = game.to_dict()
+        else:
+            response['status'] = 400  # Bad request
+        return response
 
     @app.route('/game/join')
     def ui_join_game():  # put application's code here
@@ -166,7 +208,7 @@ def create_app(config):
         games = Game.get_games()
         if games:
             game: Game
-            response['data'] = [game.to_dict(fullDetail=False) for game in games]
+            response['data'] = [game.to_dict(full_detail=False) for game in games]
         response['status'] = 200  # OK
         return response
 
