@@ -7,7 +7,11 @@
         {% include '_alerts.html' %}
 
         <h1 class="mt-5">Game {{ game.id }}</h1>
-            <h3 class="mt-1">{{ player_one.name }} <span class="text-muted">({{ player_one.player_type }})</span> VS {{ player_two.name }} <span class="text-muted">({{ player_two.player_type }})</span></h3>
+            <h3 class="mt-1">
+                <span class="text-danger">{{ player_one.name }}</span> <span class="text-muted">({{ player_one.player_type }})</span>
+                VS
+                <span class="text-primary">{{ player_two.name }}</span> <span class="text-muted">({{ player_two.player_type }})</span>
+            </h3>
 
 
 {% if game.status == enumGameStatus.IN_PROGRESS %}
@@ -39,9 +43,9 @@
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% else %}
-    {% if game.winning_player_number == 1 %}
+    {% if game.winning_player_number.value == 1 %}
         <p>WINNER = {{ player_one.name }}</p>
-    {% elif game.winning_player_number == 1 %}
+    {% elif game.winning_player_number.value == 2 %}
         <p>WINNER = {{ player_two.name }}</p>
     {% else %}
         <p>It's a TIE</p>
