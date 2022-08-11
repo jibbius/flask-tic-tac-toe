@@ -3,7 +3,7 @@ from flask_migrate import Migrate
 
 from webapp.controllers import GameController
 from webapp.csv_sync import PlayerCsv
-from webapp.helpers import ApiEndpoint
+from webapp.helpers import ApiEndpoint, GameStatus
 from webapp.models import Player, Game, GameMove
 from webapp.models import db
 
@@ -74,15 +74,36 @@ def create_app(config):
         return render_template("ui_games_get_all.html", all_games=Game.get_games())
 
     @app.route("/games/<game_id>/", methods=["GET"])
-    def ui_games_get_by_id(game_id):
+    def ui_games_get_by_id(game_id:int):
+        game_id = int(game_id)
         response = {'status': None, 'data': []}
-        game = Game.get_game_by_id(game_id)
-        if game:
+        gc = GameController(game_id=game_id)
+        if gc.game:
             response['status'] = 200
-            response['data'] = game.to_dict()
+            response['data'] = gc.game.to_dict()
+            return render_template("ui_games_get_by_id.html", game=gc.game, player_one=gc.player_one, player_two=gc.player_two, board=list(gc.game.board_state), enumGameStatus=GameStatus)
         else:
             response['status'] = 400  # Bad request
-        return response
+            return response
+
+
+    @app.route("/games/<game_id>/", methods=["POST"])
+    def ui_games_moves_add(game_id:int):
+        player_id = request.values.get('player_id')
+        position = request.values.get('position')
+        move_sequence = request.values.get('move_sequence')
+        if all([game_id, move_sequence, player_id, position]):
+            try:
+                gc = GameController(game_id=game_id)
+                gc.append_game_move(move_sequence=move_sequence, player_id=player_id, position=position)
+                return render_template("ui_games_get_by_id.html", game=gc.game, player_one=gc.player_one,
+                                       player_two=gc.player_two, board=list(gc.game.board_state),
+                                       enumGameStatus=GameStatus)
+
+            except (ValueError, TypeError) as err:
+                return err.args[0]
+        return "Unexpected error"
+
 
     @app.route('/game/join')
     def ui_join_game():  # put application's code here

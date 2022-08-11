@@ -1,13 +1,82 @@
 {% extends "_base.html" %}
-{% block title %}Game{% endblock %}
+{% block title %}Game {{ game.id }}{% endblock %}
 {% block main_content %}
     <div class="flex-shrink-0">
         <div class="container">
 
-        <h1 class="mt-5">Game</h1>
-
         {% include '_alerts.html' %}
 
+        <h1 class="mt-5">Game {{ game.id }}</h1>
+            <h3 class="mt-1">{{ player_one.name }} <span class="text-muted">({{ player_one.player_type }})</span> VS {{ player_two.name }} <span class="text-muted">({{ player_two.player_type }})</span></h3>
+
+
+{% if game.status == enumGameStatus.IN_PROGRESS %}
+<form method="post" action="{{url_for('ui_games_moves_add',game_id=game.id)}}">
+{% endif %}
+
+<div class="game-board">
+    {% for cell in board %}
+        <div class="box">
+            {% if cell == "1" %}
+                <p class="text-danger">X</p>
+            {% elif cell == "2" %}
+                <p class="text-primary">O</p>
+            {% elif game.status == enumGameStatus.IN_PROGRESS %}
+                <input type="radio" class="btn-check" name="position" id="position-{{ loop.index }}" autocomplete="off" value="{{ loop.index }}" required>
+                {% if game.next_move_player_number == 1 %}
+                    <label class="btn btn-outline-danger" for="position-{{ loop.index }}">{{ loop.index }}</label>
+                {% else %}
+                    <label class="btn btn-outline-primary" for="position-{{ loop.index }}">{{ loop.index }}</label>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+{% if game.status == enumGameStatus.IN_PROGRESS %}
+    <input type="hidden" name="player_id" value="{{ player_one.id if game.next_move_player_number == 1 else player_two.id }}">
+    <input type="hidden" name="move_sequence" value="{{ game.next_move_sequence }}">
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% else %}
+    {% if game.winning_player_number == 1 %}
+        <p>WINNER = {{ player_one.name }}</p>
+    {% elif game.winning_player_number == 1 %}
+        <p>WINNER = {{ player_two.name }}</p>
+    {% else %}
+        <p>It's a TIE</p>
+    {% endif %}
+{% endif %}
+
+<style>
+.game-board
+{
+width: 60%;
+height: auto;
+margin: 0 auto;
+background-color: #34495e;
+color: #fff;
+border: 6px solid #2c3e50;
+border-radius: 10px;
+display: grid;
+grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+}
+
+.box
+{
+border: 6px solid #2c3e50;
+border-radius: 2px;
+font-family: Helvetica;
+font-weight: bold;
+font-size: 4em;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+</style>
+
+
+<a href="{{url_for('ui_games_get_all')}}">Back to Existing Games</a>
 
         </div>
     </div>
