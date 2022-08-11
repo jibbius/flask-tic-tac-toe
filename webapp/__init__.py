@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, flash
+from flask import Flask, render_template, request, url_for, flash, Markup
 from flask_migrate import Migrate
 
 from webapp.controllers import GameController
@@ -58,7 +58,7 @@ def create_app(config):
                 )
                 game = gc.create_game()
                 game_url = url_for('ui_games_get_by_id',game_id=game.id)
-                flash(f"Game created successfully: <a href='{game_url}'>Join game</a>", 'success')
+                flash(Markup(f"Game created successfully: <a href='{game_url}'>Join game</a>"), 'success')
             except ValueError as err:
                 errorMessage += err.args[0]
 

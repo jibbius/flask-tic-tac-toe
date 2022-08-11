@@ -20,6 +20,18 @@ class Player(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255))
     player_type = db.Column(db.String(255))
+    games_as_player_one = db.relationship(
+        'Game',
+        backref='player_one',
+        lazy='subquery', # 'dynamic'
+        foreign_keys='Game.player_one_id'
+    )
+    games_as_player_two = db.relationship(
+        'Game',
+        backref='player_two',
+        lazy='subquery', # 'dynamic'
+        foreign_keys='Game.player_two_id'
+    )
 
     e_added = Event()
     e_updated = Event()
@@ -76,14 +88,15 @@ class Player(db.Model):
 
 class Game(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    player_one_id = db.Column(db.Integer())
-    player_two_id = db.Column(db.Integer())
+    player_one_id = db.Column(db.Integer(), db.ForeignKey('player.id'))
+    player_two_id = db.Column(db.Integer(), db.ForeignKey('player.id'))
     status = db.Column(db.Enum(GameStatus))
     next_move_sequence = db.Column(db.Integer())
     next_move_player_number = db.Column(db.Integer())
     board_state = db.Column(db.String(9))
     winning_player_id = db.Column(db.Integer())
     winning_player_number = db.Column(db.Enum(WinningPlayerNum))
+
 
     e_added = Event()
     e_updated = Event()

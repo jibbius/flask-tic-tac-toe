@@ -16,16 +16,16 @@
                     <div class="card">
                       <div class="card-body">
                         <h5 class="card-title">Game {{ game.id }} : {{game.status.name}}</h5>
-                          <h6 class="card-subtitle mb-2 text-muted">Player {{ game.player_one_id }} vs. Player {{ game.player_two_id }} </h6>
+                          <h6 class="card-subtitle mb-2 text-muted">{{ game.player_one.name }} vs. {{ game.player_two.name }} </h6>
                           {% if not game.winning_player_number %}
                             <a href='{{ url_for('ui_games_get_by_id',game_id=game.id) }}'>Join game</a>
                           {% else %}
                               <a href='{{ url_for('ui_games_get_by_id',game_id=game.id) }}'>View post-game summary</a><br>
                             {% if game.winning_player_number.value == 1 %}
-                                Winner: Player {{ game.player_one_id }}
+                                Winner: {{ game.player_one.name }}
                             {% endif %}
                             {% if game.winning_player_number.value == 2 %}
-                                Winner: Player {{ game.player_two_id }}
+                                Winner: {{ game.player_two.name }}
                             {% endif %}
                             {% if game.winning_player_number.value == 3 %}
                                 TIE

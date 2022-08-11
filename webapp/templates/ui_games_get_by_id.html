@@ -15,6 +15,7 @@
 
 
 {% if game.status == enumGameStatus.IN_PROGRESS %}
+    <h5 class="mt-5">It's your turn, {{ player_one.name if game.next_move_player_number == 1 else player_two.name }}:</h5>
 <form method="post" action="{{url_for('ui_games_moves_add',game_id=game.id)}}">
 {% endif %}
 
@@ -44,38 +45,39 @@
 </form>
 {% else %}
     {% if game.winning_player_number.value == 1 %}
-        <p>WINNER = {{ player_one.name }}</p>
+        <h3>WINNER = {{ player_one.name }}</h3>
     {% elif game.winning_player_number.value == 2 %}
-        <p>WINNER = {{ player_two.name }}</p>
+        <h3>WINNER = {{ player_two.name }}</h3>
     {% else %}
-        <p>It's a TIE</p>
+        <h3>It's a TIE</h3>
     {% endif %}
 {% endif %}
 
 <style>
 .game-board
 {
-width: 60%;
-height: auto;
-margin: 0 auto;
-background-color: #34495e;
-color: #fff;
-border: 6px solid #2c3e50;
-border-radius: 10px;
-display: grid;
-grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+    width: 60%;
+    height: auto;
+    margin: 0 auto;
+    background-color: #000000;
+    color: #fff;
+    border: 6px solid #212529;
+    border-radius: 10px;
+    display: grid;
+    grid-template: repeat(3, 1fr) / repeat(3, 1fr);
 }
-
 .box
 {
-border: 6px solid #2c3e50;
-border-radius: 2px;
-font-family: Helvetica;
-font-weight: bold;
-font-size: 4em;
-display: flex;
-justify-content: center;
-align-items: center;
+    border: 6px solid #212529;
+    font-weight: bold;
+    font-size: 4em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 124px;
+}
+.box p {
+    margin-bottom: 0;
 }
 </style>
 
