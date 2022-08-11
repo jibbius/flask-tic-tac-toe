@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, url_for, flash
 from flask_migrate import Migrate
 
+from webapp.controllers import GameController
 from webapp.csv_sync import PlayerCsv
 from webapp.helpers import ApiEndpoint
 from webapp.models import Player, Game, GameMove
@@ -49,13 +50,13 @@ def create_app(config):
         game = None
         player_one_id = request.values.get('player_one_id')
         player_two_id = request.values.get('player_two_id')
-
         if all([player_one_id, player_two_id]):
             try:
-                game = Game(
+                gc = GameController(
                     player_one_id=int(player_one_id),
                     player_two_id=int(player_two_id)
                 )
+                game = gc.create_game()
                 game_url = url_for('ui_games_get_by_id',game_id=game.id)
                 flash(f"Game created successfully: <a href='{game_url}'>Join game</a>", 'success')
             except ValueError as err:
@@ -217,18 +218,20 @@ def create_app(config):
         response = {'status': None, 'data': []}
         content_type = request.headers.get('Content-Type')
         if content_type == 'application/json':
-            request_params = request.json
-            required_params = ['player_one_id', 'player_two_id']
-            if all(param in required_params for param in request_params):
+            errorMessage = None
+            game = None
+            player_one_id = request.json.get('player_one_id')
+            player_two_id = request.json.get('player_two_id')
+            if all([player_one_id, player_two_id]):
                 try:
-                    game = Game(
-                        player_one_id=int(request_params['player_one_id']),
-                        player_two_id=int(request_params['player_two_id'])
+                    gc = GameController(
+                        player_one_id=int(player_one_id),
+                        player_two_id=int(player_two_id)
                     )
+                    game = gc.create_game()
                     response['data'] = game.to_dict()
                 except ValueError as err:
                     response['message'] = err.args[0]
-
         if response['data']:
             response['status'] = 201  # Created
         else:
@@ -256,17 +259,9 @@ def create_app(config):
             position = request_params.get('position')
             if all([game_id, move_sequence, player_id, position]):
                 try:
-                    game_id = int(game_id)
-                    move_sequence = int(move_sequence)
-                    player_id = int(player_id)
-                    position = int(position)
-                    game_move = GameMove(
-                        game_id=game_id,
-                        move_sequence=move_sequence,
-                        player_id=player_id,
-                        position=position
-                    )
-                    response['data'] = game_move.game.to_dict()
+                    gc = GameController(game_id=game_id)
+                    gc.append_game_move(move_sequence=move_sequence, player_id=player_id, position=position)
+                    response['data'] = gc.game.to_dict()
                 except (ValueError, TypeError) as err:
                     response['message'] = err.args[0]
         if response['data']:

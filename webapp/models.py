@@ -104,30 +104,17 @@ class Game(db.Model):
 
     def __init__(self, player_one_id: int, player_two_id: int):
 
-        player_one = Player.get_player_by_id(int(player_one_id))
-        player_two = Player.get_player_by_id(int(player_two_id))
-
-        if not player_one or not player_two:
-            raise ValueError("Invalid PlayerID")
-
-        self.player_one_id = player_one.id
-        self.player_two_id = player_two.id
+        self.player_one_id = player_one_id
+        self.player_two_id = player_two_id
         self.status = GameStatus.IN_PROGRESS
         self.board_state = "0" * 9
         self.winning_player_id = None
         self.winning_player_number = None
-
-        # This is a counter, we increment for each move:
         self.next_move_sequence = 1
 
-        # This tells us which player number (1 or 2), will take the next move:
+        # This tells us which player number (1 or 2), will take the next move.
+        # Later, we might change this logic to randomise or alternate who the first player is?
         self.next_move_player_number = 1
-
-        # Future enhancement: Alternate starting move between players
-
-        # Commit to database:
-        db.session.add(self)
-        db.session.commit()
 
         # Inform any event listeners:
         self.e_added.post_event(self)
@@ -139,6 +126,19 @@ class Game(db.Model):
 
     def get_valid_next_positions(self):
         return [GamePosition(idx + 1) for idx, value in enumerate(self.board_state) if value == "0"]
+
+    def get_next_move_player_type(self):
+        player_type = None
+        if self.status == GameStatus.IN_PROGRESS:
+            if self.next_move_player_number == 1:
+                next_move_player = Player.get_player_by_id(self.player_one_id)
+            elif self.next_move_player_number == 2:
+                next_move_player = Player.get_player_by_id(self.player_two_id)
+
+        if type(next_move_player) == Player:
+            player_type = next_move_player.player_type
+
+        return player_type
 
     def to_dict(self, full_detail=True):
         game_as_dict = {
@@ -206,7 +206,7 @@ class Game(db.Model):
                 self.winning_player_id = self.player_one_id
             if winner_or_tie == WinningPlayerNum.PLAYER_TWO:
                 self.winning_player_id = self.player_two_id
-        db.session.add(self)
+        return self
 
     @classmethod
     def check_for_winner(cls, board_state_str):
@@ -233,62 +233,20 @@ class GameMove(db.Model):
     position = db.Column(db.Enum(GamePosition))
     e_added = Event()
 
-    def __init__(self, game_id: int, move_sequence: int, player_id: int, position):
-
-        self.game = Game.get_game_by_id(int(game_id))
-        self.player_number = self.game.next_move_player_number
-        self.player = Player.get_player_by_id(int(player_id))
-        self.move_sequence = int(move_sequence)
-        if type(position) == str:
-            self.position = GamePosition(int(position))
-        elif type(position) == int:
-            self.position = GamePosition(position)
-
-        if type(position) != GamePosition:
-            raise TypeError("Unexpected GamePosition")
-
-        if not self.game:
-            raise ValueError("Invalid GameID")
-
-        if self.game.status != GameStatus.IN_PROGRESS:
-            raise ValueError(f"No further moves allowed; Game status = {self.game.status.name}")
-
-        if self.move_sequence != self.game.next_move_sequence:
-            raise ValueError(
-                f"Unexpected move sequence (expected {self.game.next_move_sequence}, got {self.move_sequence})")
-
-        if not self.player:
-            raise ValueError("Invalid PlayerID")
-        else:
-            self.player_id = self.player.id
-            if self.player_number == 1:
-                if self.player.id != self.game.player_one_id:
-                    raise ValueError(
-                        "It is Player 1's turn; (expected PlayerID {}), got PlayerID {})".format(
-                            self.game.player_one_id,
-                            self.player.id
-                        )
-                    )
-            elif self.player_number == 2:
-                if self.player.id != self.game.player_two_id:
-                    raise ValueError(
-                        "It is Player 2's turn; (expected PlayerID {}), got PlayerID {})".format(
-                            self.game.player_two_id,
-                            self.player.id
-                        )
-                    )
-
-        if self.position not in self.game.get_valid_next_positions():
-            raise ValueError(
-                f"Invalid position specified; {self.position.name} is already occupied."
-            )
-
-        # All validations passed.
-        self.game.append_move(self.player_number, self.position)
-
-        # Commit any outstanding transactions to the database:
-        db.session.add(self)
-        db.session.commit()
+    def __init__(
+            self,
+            game_id: int,
+            move_sequence: int,
+            player_number: int,
+            player_id: int,
+            position: GamePosition
+    ):
+        self.game_id = game_id
+        self.move_sequence = move_sequence
+        self.player_number = player_number
+        self.player_id = player_id
+        self.position = position
 
         # Inform any event listeners:
         self.e_added.post_event(self)
+
