@@ -1,5 +1,7 @@
 .idea/
 __pycache__/
 venv
+.venv
 webapp/models/__pycache__/
 webapp/database.db
+instance
