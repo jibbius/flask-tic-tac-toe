@@ -134,7 +134,7 @@ class Game(db.Model):
 
     @classmethod
     def get_games(cls):
-        return cls.query.all()
+        return cls.query.order_by(Game.id.desc()).all()
 
     @classmethod
     def get_game_by_id(cls, game_id: int):
@@ -220,6 +220,10 @@ class Game(db.Model):
         updated_board_state = "".join(updated_board_state)
         self.board_state = updated_board_state
         self.next_move_sequence += 1
+        
+        # If this move was player 1, next move is player 2
+        # If this move was player 2, next move is player 1
+        self.next_move_player_number = 3 - player_number
 
         winner_or_tie = Game.check_for_winner(self.board_state)
         if winner_or_tie:
@@ -239,9 +243,11 @@ class Game(db.Model):
 
         db.session.add(self)
         self.e_added.post_event(self)
+        return self
 
 
 class GameMove(db.Model):
+    game: Game
     id = db.Column(db.Integer(), primary_key=True)
     game_id = db.Column(db.Integer(), db.ForeignKey('game.id'), nullable=False)
     move_sequence = db.Column(db.Integer())
