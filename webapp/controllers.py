@@ -4,6 +4,16 @@ from webapp.helpers import GamePosition, GameStatus
 from webapp.models import Player, Game, GameMove, db
 
 
+def calculate_next_move_easy(game: Game):
+    valid_positions = game.get_valid_next_positions()
+    return random.choice(valid_positions)
+
+
+def calculate_next_move_hard(game: Game):
+    # TODO: Introduce more complex logic here
+    return calculate_next_move_easy(game)
+
+
 class GameController:
     player_one: Player
     player_two: Player
@@ -12,7 +22,6 @@ class GameController:
     def __init__(self, player_one_id: int = None, player_two_id: int = None, game_id: int = None):
         self.player_one = None
         self.player_two = None
-        self.game = None
 
         if game_id:
             self.game = Game.get_game_by_id(int(game_id))
@@ -49,12 +58,13 @@ class GameController:
 
         # Append to database:
         db.session.add(self.game)
+        db.session.commit() # Need to commit, prior to automated moves. This ensures that we have a GameId.
 
         # Determine if any automated moves to be executed
         self.perform_automated_moves()
 
         # Commit transaction to database
-        db.session.commit()
+
 
         return self.game
 
@@ -118,12 +128,6 @@ class GameController:
             player_id=sanitised_player_id,
             position=sanitised_position,
         )
-        # Append the update to our set of DB transactions:
-        db.session.add(move)
-
-        # An update is required for Game model also:
-        newly_updated_game = self.game.append_move(move.player_number, move.position)
-        db.session.add(newly_updated_game)
 
         self.perform_automated_moves()
 
@@ -133,26 +137,21 @@ class GameController:
         # Todo: Return a RESULT object?
         return self.game
 
+    def get_next_turn_player_type(self):
+        if self.game.status == GameStatus.IN_PROGRESS:
+            if self.game.next_move_player_number == 1:
+                return self.player_one.player_type
+            else:
+                return self.player_two.player_type
+        else:
+            return None
+
     def perform_automated_moves(self):
         if all([self.player_one, self.player_two, self.game]):
 
-            while True:
-                if self.game.status != GameStatus.IN_PROGRESS:
-                    break
+            while self.get_next_turn_player_type() == "computer":
 
-                if self.game.next_move_player_number == 1 and self.player_one.player_type == "human":
-                    break
-
-                if self.game.next_move_player_number == 2 and self.player_two.player_type == "human":
-                    break
-
-                # Decide what kind of move to make:
-                valid_positions = self.game.get_valid_next_positions()
-
-                # TODO: Add different computer difficulty levels.
-                #       Use the 'Strategy' pattern; and allow trickier AIs to make better moves.
-                selected_position = random.choice(valid_positions)
-
+                selected_position = calculate_next_move_easy(self.game)
                 move_sequence = self.game.next_move_sequence
 
                 if self.game.next_move_player_number == 1:

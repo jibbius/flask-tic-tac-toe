@@ -23,14 +23,26 @@ class Player(db.Model):
     games_as_player_one = db.relationship(
         'Game',
         backref='player_one',
-        lazy='subquery', # 'dynamic'
+        lazy='subquery',  # Always load
         foreign_keys='Game.player_one_id'
     )
     games_as_player_two = db.relationship(
         'Game',
         backref='player_two',
-        lazy='subquery', # 'dynamic'
+        lazy='subquery',  # Always load
         foreign_keys='Game.player_two_id'
+    )
+    games_as_winner = db.relationship(
+        'Game',
+        backref='winning_player',
+        lazy='dynamic',  # Load if required
+        foreign_keys='Game.winning_player_id'
+    )
+    games_as_next_move = db.relationship(
+        'Game',
+        backref='next_move_player',
+        lazy='dynamic',  # Load if required
+        foreign_keys='Game.next_move_player_id'
     )
 
     e_added = Event()
@@ -48,9 +60,9 @@ class Player(db.Model):
         self.e_added.post_event(self)
 
     def __repr__(self):
-        return "<Player '{}'>".format(self.name)
+        return "<Player '{}' ({})>".format(self.name, self.player_type)
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         player_as_dict = {
             "id": self.id,
             "name": self.name,
@@ -82,21 +94,26 @@ class Player(db.Model):
                 db.session.commit()
                 updated_player = cls.get_player_by_id(player_id)
                 cls.e_added.post_event(updated_player)
-
         return updated_player
 
 
 class Game(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    player_one_id = db.Column(db.Integer(), db.ForeignKey('player.id'))
-    player_two_id = db.Column(db.Integer(), db.ForeignKey('player.id'))
-    status = db.Column(db.Enum(GameStatus))
+    player_one_id = db.Column(db.Integer(), db.ForeignKey('player.id'), nullable=False)
+    player_two_id = db.Column(db.Integer(), db.ForeignKey('player.id'), nullable=False)
+    status = db.Column(db.Enum(GameStatus), nullable=False)
     next_move_sequence = db.Column(db.Integer())
     next_move_player_number = db.Column(db.Integer())
+    next_move_player_id = db.Column(db.Integer(), db.ForeignKey('player.id'), nullable=True)
     board_state = db.Column(db.String(9))
-    winning_player_id = db.Column(db.Integer())
-    winning_player_number = db.Column(db.Enum(WinningPlayerNum))
-
+    winning_player_id = db.Column(db.Integer(), db.ForeignKey('player.id'), nullable=True)
+    winning_player_number = db.Column(db.Enum(WinningPlayerNum), nullable=True)
+    moves = db.relationship(
+        'GameMove',
+        backref='game',
+        lazy='dynamic',  # Load if required
+        foreign_keys='GameMove.game_id'
+    )
 
     e_added = Event()
     e_updated = Event()
@@ -114,6 +131,28 @@ class Game(db.Model):
         [GamePosition.TOP_ROW_LEFT_COL, GamePosition.MIDDLE_ROW_CENTER_COL, GamePosition.BOTTOM_ROW_RIGHT_COL],
         [GamePosition.TOP_ROW_RIGHT_COL, GamePosition.MIDDLE_ROW_CENTER_COL, GamePosition.BOTTOM_ROW_LEFT_COL],
     ]
+
+    @classmethod
+    def get_games(cls):
+        return cls.query.all()
+
+    @classmethod
+    def get_game_by_id(cls, game_id: int):
+        return cls.query.get(int(game_id))
+
+    @classmethod
+    def check_for_winner(cls, board_state_str) -> WinningPlayerNum | None:
+        b = list(board_state_str)
+        for cond in cls.winning_combinations:
+            # noinspection PyTypeChecker
+            line = "".join([b[gp.value - 1] for gp in cond])
+            if line == "111":
+                return WinningPlayerNum.PLAYER_ONE
+            if line == "222":
+                return WinningPlayerNum.PLAYER_TWO
+        if "0" not in b:
+            return WinningPlayerNum.TIE
+        return None  # No winner
 
     def __init__(self, player_one_id: int, player_two_id: int):
 
@@ -137,11 +176,12 @@ class Game(db.Model):
         z = [b[0] + b[1] + b[2], b[3] + b[4] + b[5], b[6] + b[7] + b[8]]
         return z
 
-    def get_valid_next_positions(self):
+    def get_valid_next_positions(self) -> list:
         return [GamePosition(idx + 1) for idx, value in enumerate(self.board_state) if value == "0"]
 
-    def get_next_move_player_type(self):
+    def get_next_move_player_type(self) -> str:
         player_type = None
+        next_move_player = None
         if self.status == GameStatus.IN_PROGRESS:
             if self.next_move_player_number == 1:
                 next_move_player = Player.get_player_by_id(self.player_one_id)
@@ -153,7 +193,7 @@ class Game(db.Model):
 
         return player_type
 
-    def to_dict(self, full_detail=True):
+    def to_dict(self, full_detail=True) -> dict:
         game_as_dict = {
             "id": self.id,
             "player_one_id": self.player_one_id,
@@ -171,32 +211,6 @@ class Game(db.Model):
             })
         return game_as_dict
 
-    @classmethod
-    def get_games(cls):
-        return cls.query.all()
-
-    @classmethod
-    def get_game_by_id(cls, game_id: int):
-        this_game = cls.query.get(int(game_id))
-        return this_game
-
-    @classmethod
-    def update_game_by_id(cls, game_id: int, params):
-        updated_game = None
-        allowable_params = []
-        all_params = set(params.keys()).union(allowable_params)
-
-        if len(all_params) > len(allowable_params):
-            raise ValueError("Parameters specified are not allowed")
-        else:
-            did_update = cls.query.filter_by(id=int(game_id)).update(params)
-            if did_update:
-                db.session.commit()
-                updated_game = cls.get_game_by_id(game_id)
-                cls.e_added.post_event(updated_game)
-
-        return updated_game
-
     def append_move(self, player_number: int, position: GamePosition):
         updated_board_state = list(self.board_state)
 
@@ -207,10 +221,6 @@ class Game(db.Model):
         self.board_state = updated_board_state
         self.next_move_sequence += 1
 
-        # If this move was player 1, next move is player 2
-        # If this move was player 2, next move is player 1
-        self.next_move_player_number = 3 - player_number
-
         winner_or_tie = Game.check_for_winner(self.board_state)
         if winner_or_tie:
             self.status = GameStatus.FINISHED
@@ -219,27 +229,21 @@ class Game(db.Model):
                 self.winning_player_id = self.player_one_id
             if winner_or_tie == WinningPlayerNum.PLAYER_TWO:
                 self.winning_player_id = self.player_two_id
-        return self
+            self.next_move_player_number = None
+            self.next_move_player_id = None
+        else:
+            # If this move was player 1, next move is now player 2
+            # If this move was player 2, next move is now player 1
+            self.next_move_player_number = 3 - player_number
+            self.next_move_player_id = self.player_one_id if self.next_move_player_number == 1 else self.player_two_id
 
-    @classmethod
-    def check_for_winner(cls, board_state_str):
-        b = list(board_state_str)
-        for cond in cls.winning_combinations:
-            # noinspection PyTypeChecker
-            line = "".join([b[gp.value - 1] for gp in cond])
-            if line == "111":
-                return WinningPlayerNum.PLAYER_ONE
-            if line == "222":
-                return WinningPlayerNum.PLAYER_TWO
-        if "0" not in b:
-            return WinningPlayerNum.TIE
-        return None  # No winner
+        db.session.add(self)
+        self.e_added.post_event(self)
 
 
 class GameMove(db.Model):
-    game: Game
     id = db.Column(db.Integer(), primary_key=True)
-    game_id = db.Column(db.Integer())
+    game_id = db.Column(db.Integer(), db.ForeignKey('game.id'), nullable=False)
     move_sequence = db.Column(db.Integer())
     player_number = db.Column(db.Integer())
     player_id = db.Column(db.Integer())
@@ -260,6 +264,7 @@ class GameMove(db.Model):
         self.player_id = player_id
         self.position = position
 
+        db.session.add(self)
+
         # Inform any event listeners:
         self.e_added.post_event(self)
-
