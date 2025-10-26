@@ -5,3 +5,4 @@ venv
 webapp/models/__pycache__/
 webapp/database.db
 instance
+*.bak
