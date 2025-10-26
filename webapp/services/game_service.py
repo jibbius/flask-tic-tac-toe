@@ -1,11 +1,9 @@
-import random
-
 from webapp.helpers import GamePosition, GameStatus
 from webapp.models.player import Player
 from webapp.models.game import Game
 from webapp.models.game_move import GameMove
 from webapp.models.base import db
-
+import random
 
 def calculate_next_move_easy(game: Game):
     valid_positions = game.get_valid_next_positions()
@@ -17,7 +15,7 @@ def calculate_next_move_hard(game: Game):
     return calculate_next_move_easy(game)
 
 
-class GameController:
+class GameService:
     player_one: Player
     player_two: Player
     game: Game
