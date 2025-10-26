@@ -1,5 +1,5 @@
 import csv
-from webapp.models import Player
+from webapp.models.player import Player
 
 class PlayerCsv:
     csv_filename : str

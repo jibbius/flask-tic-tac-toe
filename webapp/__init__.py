@@ -4,9 +4,10 @@ from flask_migrate import Migrate
 from webapp.controllers import GameController
 from webapp.csv_sync import PlayerCsv
 from webapp.helpers import ApiEndpoint, GameStatus
-from webapp.models import Player, Game, GameMove
-from webapp.models import db
-
+from webapp.models.player import Player
+from webapp.models.game import Game
+from webapp.models.game_move import GameMove
+from webapp.models.base import db
 
 def create_app(config):
     app = Flask(__name__)

@@ -1,7 +1,10 @@
 import random
 
 from webapp.helpers import GamePosition, GameStatus
-from webapp.models import Player, Game, GameMove, db
+from webapp.models.player import Player
+from webapp.models.game import Game
+from webapp.models.game_move import GameMove
+from webapp.models.base import db
 
 
 def calculate_next_move_easy(game: Game):
