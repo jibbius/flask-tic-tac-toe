@@ -1,5 +1,5 @@
 """Flask application factory"""
-
+import os
 from flask import Flask
 from flask_migrate import Migrate
 
@@ -41,7 +41,9 @@ def create_app(config):
 
 def _initialize_player_data():
     """Initialize player data from CSV file if database is empty"""
-    player_csv = PlayerCsv('seed_data_players.csv')
+    csv_filename = 'seed_data_players.csv'
+    csv_path = os.path.join(os.path.dirname(__file__), csv_filename)
+    player_csv = PlayerCsv(csv_path)
     existing_data = Player.get_players()
     
     if not existing_data:
