@@ -56,6 +56,9 @@ class Player(db.Model):
             "name": self.name,
             "player_type": self.player_type,
         }
+        if(self.player_type == "computer"):
+            player_as_dict['bot_difficulty'] = self.bot_difficulty
+
         return player_as_dict
 
     @classmethod

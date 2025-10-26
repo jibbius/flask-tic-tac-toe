@@ -1,11 +1,22 @@
 import csv
+import os
 from webapp.models.player import Player
 
 class PlayerCsv:
     csv_filename : str
 
     def __init__(self, csv_filename):
-        self.csv_filename = csv_filename
+
+        check_filenames = [
+            csv_filename,
+            '..\\' + csv_filename
+        ]
+
+        for filename in check_filenames:
+            if os.path.exists(filename):
+                self.csv_filename = filename
+                return
+
 
     def synchronize_players_from_file(self):
         player_list = []

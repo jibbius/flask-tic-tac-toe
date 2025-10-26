@@ -6,12 +6,13 @@
     <div class="container">
         <h1 class="mt-5">New Game</h1>
 
-        <form method="post" action="{{url_for('ui_games_add')}}">
+        <form method="post" action="{{url_for('ui.games_add')}}">
             <div class="mb-3">
                 <label class="form-label" for="player_one_id">Player 1</label>
                 <select class="form-select" aria-label="Player 1" name="player_one_id" id="player_one_id">
                     {% for p1 in player_list %}
-                      <option value="{{p1.id}}" {% if p1.id == 1 %}selected{% endif %}>{{p1.name}} ({{p1.player_type}})</option>
+                      <option value="{{p1.id}}"{% if p1.id == 1 %}selected{% endif %}
+                      >{{p1.name}} ({{p1.player_type}} {% if p1.player_type=="computer" %} - {{p1.bot_difficulty}}{% endif %})</option>
                     {% endfor %}
                 </select>
             </div>
@@ -25,7 +26,7 @@
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
-            <a class="btn btn-link" href="{{url_for('root')}}">Cancel</a>
+            <a class="btn btn-link" href="{{url_for('ui.root')}}">Cancel</a>
         </form>
     </div>
 </div>

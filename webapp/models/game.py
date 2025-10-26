@@ -60,6 +60,10 @@ class Game(db.Model):
         if "0" not in b:
             return WinningPlayerNum.TIE
         return None  # No winner
+    
+    @classmethod
+    def valid_next_positions(cls, board_state_str) -> WinningPlayerNum | None:
+        return [GamePosition(idx + 1) for idx, value in enumerate(board_state_str) if value == "0"]
 
     def __init__(self, player_one_id: int, player_two_id: int):
 
@@ -84,7 +88,7 @@ class Game(db.Model):
         return z
 
     def get_valid_next_positions(self) -> list:
-        return [GamePosition(idx + 1) for idx, value in enumerate(self.board_state) if value == "0"]
+        return Game.valid_next_positions(self.board_state)
 
     def get_next_move_player_type(self) -> str:
         player_type = None
