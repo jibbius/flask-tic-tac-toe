@@ -15,6 +15,7 @@ class PlayerCsv:
                 allowablePlayerData = {
                     "name":playerData["name"],
                     "player_type":playerData["player_type"],
+                    "bot_difficulty":playerData["bot_difficulty"]
                 }
                 player_list.append(Player(**allowablePlayerData))
         return player_list
@@ -25,11 +26,11 @@ class PlayerCsv:
         player_list = Player.get_players()
         with open(self.csv_filename, 'w', newline="") as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['id', 'name', 'player_type'])
+            writer.writerow(['id', 'name', 'player_type', 'bot_difficulty'])
 
             player: Player
             for player in player_list:
                 if player:
-                    writer.writerow([player.id, player.name, player.player_type])
+                    writer.writerow([player.id, player.name, player.player_type, player.bot_difficulty])
 
         return True

@@ -1,6 +1,8 @@
-id,name,player_type
-1,Boris,human
-2,Tina,computer
-3,Susan,human
-4,Jimmy,human
-5,Kramer,computer
+id,name,player_type,bot_difficulty
+1,Boris,human,
+2,Tina,computer,easy
+3,Kramer,computer,medium
+4,Susan,computer,hard
+5,Fabian,computer,expert
+6,Manuel,human,
+7,Hugo,human,

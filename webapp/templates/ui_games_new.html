@@ -19,7 +19,8 @@
                 <label class="form-label" for="player_one_id">Player 2</label>
                 <select class="form-select" aria-label="Player 2" name="player_two_id" id="player_two_id">
                     {% for p2 in player_list %}
-                      <option value="{{p2.id}}"{% if p2.id == 2 %}selected{% endif %}>{{p2.name}} ({{p2.player_type}})</option>
+                      <option value="{{p2.id}}"{% if p2.id == 2 %}selected{% endif %}
+                      >{{p2.name}} ({{p2.player_type}} {% if p2.player_type=="computer" %} - {{p2.bot_difficulty}}{% endif %})</option>
                     {% endfor %}
                 </select>
             </div>

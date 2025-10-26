@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, url_for, flash, Markup
 from flask_migrate import Migrate
 
-from webapp.controllers import GameController
+from webapp.services import GameService
 from webapp.csv_sync import PlayerCsv
 from webapp.helpers import ApiEndpoint, GameStatus
 from webapp.models.player import Player
@@ -53,11 +53,11 @@ def create_app(config):
         player_two_id = request.values.get('player_two_id')
         if all([player_one_id, player_two_id]):
             try:
-                gc = GameController(
+                game_service = GameService(
                     player_one_id=int(player_one_id),
                     player_two_id=int(player_two_id)
                 )
-                game = gc.create_game()
+                game = game_service.create_game()
                 game_url = url_for('ui_games_get_by_id',game_id=game.id)
                 flash(Markup(f"Game created successfully: <a href='{game_url}'>Join game</a>"), 'success')
             except ValueError as err:
@@ -78,16 +78,16 @@ def create_app(config):
     def ui_games_get_by_id(game_id:int):
         game_id = int(game_id)
         response = {'status': None, 'data': []}
-        gc = GameController(game_id=game_id)
-        if gc.game:
+        game_service = GameService(game_id=game_id)
+        if game_service.game:
             response['status'] = 200
-            response['data'] = gc.game.to_dict()
+            response['data'] = game_service.game.to_dict()
             return render_template("ui_games_get_by_id.html",
-                            game=gc.game,
-                            player_one=gc.player_one,
-                            player_two=gc.player_two, board=list(gc.game.board_state),
+                            game=game_service.game,
+                            player_one=game_service.player_one,
+                            player_two=game_service.player_two, board=list(game_service.game.board_state),
                             enumGameStatus=GameStatus,
-                            last_move_position=gc.get_last_move_position())
+                            last_move_position=game_service.get_last_move_position())
         else:
             response['status'] = 400  # Bad request
             return response
@@ -100,14 +100,14 @@ def create_app(config):
         move_sequence = request.values.get('move_sequence')
         if all([game_id, move_sequence, player_id, position]):
             try:
-                gc = GameController(game_id=game_id)
-                gc.append_game_move(move_sequence=move_sequence, player_id=player_id, position=position)
+                game_service = GameService(game_id=game_id)
+                game_service.append_game_move(move_sequence=move_sequence, player_id=player_id, position=position)
                 return render_template("ui_games_get_by_id.html",
-                                game=gc.game,
-                                player_one=gc.player_one,
-                                player_two=gc.player_two, board=list(gc.game.board_state),
+                                game=game_service.game,
+                                player_one=game_service.player_one,
+                                player_two=game_service.player_two, board=list(game_service.game.board_state),
                                 enumGameStatus=GameStatus,
-                                last_move_position=gc.get_last_move_position())
+                                last_move_position=game_service.get_last_move_position())
 
             except (ValueError, TypeError) as err:
                 return err.args[0]
@@ -254,11 +254,11 @@ def create_app(config):
             player_two_id = request.json.get('player_two_id')
             if all([player_one_id, player_two_id]):
                 try:
-                    gc = GameController(
+                    game_service = GameService(
                         player_one_id=int(player_one_id),
                         player_two_id=int(player_two_id)
                     )
-                    game = gc.create_game()
+                    game = game_service.create_game()
                     response['data'] = game.to_dict()
                 except ValueError as err:
                     response['message'] = err.args[0]
@@ -289,9 +289,9 @@ def create_app(config):
             position = request_params.get('position')
             if all([game_id, move_sequence, player_id, position]):
                 try:
-                    gc = GameController(game_id=game_id)
-                    gc.append_game_move(move_sequence=move_sequence, player_id=player_id, position=position)
-                    response['data'] = gc.game.to_dict()
+                    game_service = GameService(game_id=game_id)
+                    game_service.append_game_move(move_sequence=move_sequence, player_id=player_id, position=position)
+                    response['data'] = game_service.game.to_dict()
                 except (ValueError, TypeError) as err:
                     response['message'] = err.args[0]
         if response['data']:

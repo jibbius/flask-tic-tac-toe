@@ -6,6 +6,7 @@ class Player(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255))
     player_type = db.Column(db.String(255))
+    bot_difficulty = db.Column(db.String(255))
     games_as_player_one = db.relationship(
         'Game',
         backref='player_one',
@@ -34,9 +35,10 @@ class Player(db.Model):
     e_added = Event()
     e_updated = Event()
 
-    def __init__(self, name, player_type):
+    def __init__(self, name, player_type, bot_difficulty):
         self.name = name
         self.player_type = player_type
+        self.bot_difficulty = bot_difficulty
 
         # Commit to database:
         db.session.add(self)
