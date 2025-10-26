@@ -29,17 +29,17 @@ class MediumBot(BotStrategy):
         player_number = game.next_move_player_number
         
         # 1. Check for winning moves
-        winning_moves = get_winning_moves(game, player_number)
+        winning_moves = get_winning_moves(game.board_state, player_number)
         if winning_moves:
             return random.choice(winning_moves)
         
         # 2. Check for blocking moves
-        blocking_moves = get_blocking_moves(game, player_number)
+        blocking_moves = get_blocking_moves(game.board_state, player_number)
         if blocking_moves:
             return random.choice(blocking_moves)
         
         # 3. Try to take center
-        center_positions = get_center_positions(game)
+        center_positions = get_center_positions(game.board_state)
         if center_positions:
             return center_positions[0]
         
