@@ -24,8 +24,8 @@ As part of this project, I am seeking to test my competencies with Flask and Per
     pip install -r requirements.txt
 
 ### Execute
-
-    python3 main.py
+    source .venv/bin/activate
+    python3 flask_app.py
 
 ## Config
 

@@ -21,11 +21,16 @@
 
 <div class="game-board">
     {% for cell in board %}
+        {% set cell_property="" %}
+        {% if last_move_position == loop.index %}
+            {% set cell_property="last_move" %}
+        {% endif %}
         <div class="box">
+
             {% if cell == "1" %}
-                <p class="text-danger">X</p>
+                <p class="text-danger {{cell_property}}">X</p>
             {% elif cell == "2" %}
-                <p class="text-primary">O</p>
+                <p class="text-primary {{cell_property}}">O</p>
             {% elif game.status == enumGameStatus.IN_PROGRESS %}
                 <input type="radio" class="btn-check" name="position" id="position-{{ loop.index }}" autocomplete="off" value="{{ loop.index }}" required>
                 {% if game.next_move_player_number == 1 %}
@@ -78,6 +83,14 @@
 }
 .box p {
     margin-bottom: 0;
+}
+.last_move {
+    animation-name: animate_fade_in;
+    animation-duration: 4s;
+}
+@keyframes animate_fade_in {
+  from {opacity: 0;}
+  to {opacity: 100;}
 }
 </style>
 

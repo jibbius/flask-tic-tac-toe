@@ -81,7 +81,12 @@ def create_app(config):
         if gc.game:
             response['status'] = 200
             response['data'] = gc.game.to_dict()
-            return render_template("ui_games_get_by_id.html", game=gc.game, player_one=gc.player_one, player_two=gc.player_two, board=list(gc.game.board_state), enumGameStatus=GameStatus)
+            return render_template("ui_games_get_by_id.html",
+                            game=gc.game,
+                            player_one=gc.player_one,
+                            player_two=gc.player_two, board=list(gc.game.board_state),
+                            enumGameStatus=GameStatus,
+                            last_move_position=gc.get_last_move_position())
         else:
             response['status'] = 400  # Bad request
             return response
@@ -96,9 +101,12 @@ def create_app(config):
             try:
                 gc = GameController(game_id=game_id)
                 gc.append_game_move(move_sequence=move_sequence, player_id=player_id, position=position)
-                return render_template("ui_games_get_by_id.html", game=gc.game, player_one=gc.player_one,
-                                       player_two=gc.player_two, board=list(gc.game.board_state),
-                                       enumGameStatus=GameStatus)
+                return render_template("ui_games_get_by_id.html",
+                                game=gc.game,
+                                player_one=gc.player_one,
+                                player_two=gc.player_two, board=list(gc.game.board_state),
+                                enumGameStatus=GameStatus,
+                                last_move_position=gc.get_last_move_position())
 
             except (ValueError, TypeError) as err:
                 return err.args[0]

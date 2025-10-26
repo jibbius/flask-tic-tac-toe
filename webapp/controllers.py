@@ -180,3 +180,9 @@ class GameController:
                     player_id = self.game.player_two_id
 
                 self.append_game_move(move_sequence=move_sequence, player_id=player_id, position=selected_position)
+
+    def get_last_move_position(self):
+        last_move = self.game.moves.order_by(GameMove.move_sequence.desc()).first()
+        if not last_move:
+            return None
+        return last_move.position.value
