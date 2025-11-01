@@ -30,3 +30,6 @@ class GameMove(db.Model):
 
         # Inform any event listeners:
         self.e_added.post_event(self)
+
+    def __repr__(self):
+        return "{ id:{}, }".format(self.id)

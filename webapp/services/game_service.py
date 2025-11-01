@@ -117,10 +117,10 @@ class GameService:
     
     def get_next_turn_player(self) -> Player:
         """
-        Get the player type of whoever's turn it is next.
+        Get the player whose turn it is next.
         
         Returns:
-            str: The player type ("human" or "computer") or None if game is over
+            Player: The player, or None if game is over
         """
         if self.game.status == GameStatus.IN_PROGRESS:
             if self.game.next_move_player_number == 1:

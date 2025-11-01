@@ -14,7 +14,7 @@ from webapp.bots.config import (
 
 def get_bot_strategy(difficulty: str = DEFAULT_DIFFICULTY) -> BotStrategy:
     """
-    Factory function to get appropriate bot strategy based on difficulty.
+    Factory function to get the appropriate bot strategy based on difficulty.
     
     Args:
         difficulty: The difficulty level ("easy", "medium", "hard", or "expert")

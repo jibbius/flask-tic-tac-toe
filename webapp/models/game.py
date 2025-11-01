@@ -60,9 +60,20 @@ class Game(db.Model):
         if "0" not in b:
             return WinningPlayerNum.TIE
         return None  # No winner
+
+    @property
+    def winning_pieces(self) -> set[int]:
+        b = list(self.board_state)
+        winning_pieces = set()
+        for cond in Game.winning_combinations:
+            # noinspection PyTypeChecker
+            line = "".join([b[gp.value - 1] for gp in cond])
+            if line == "111" or line == "222":
+                winning_pieces.update({gp.value for gp in cond})
+        return winning_pieces
     
     @classmethod
-    def valid_next_positions(cls, board_state_str) -> WinningPlayerNum | None:
+    def valid_next_positions(cls, board_state_str) -> list[GamePosition]:
         return [GamePosition(idx + 1) for idx, value in enumerate(board_state_str) if value == "0"]
 
     def __init__(self, player_one_id: int, player_two_id: int):

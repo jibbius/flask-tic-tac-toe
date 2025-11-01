@@ -26,9 +26,10 @@ def add():
         request_params = request.json
         name = request_params.get('name')
         player_type = request_params.get('player_type')
+        bot_difficulty = request_params.get('bot_difficulty')
         
         if all([name, player_type]):
-            player = Player(name=name, player_type=player_type)
+            player = Player(name=name, player_type=player_type, bot_difficulty=bot_difficulty)
     
     if player:
         response['status'] = 201  # Created

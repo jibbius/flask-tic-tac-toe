@@ -19,18 +19,38 @@
 <form method="post" action="{{url_for('ui.games_moves_add',game_id=game.id)}}">
 {% endif %}
 
-<div class="game-board">
+<div class="game-board {{ game.status.name|lower }}">
     {% for cell in board %}
-        {% set cell_property="" %}
-        {% if last_move_position == loop.index %}
-            {% set cell_property="last_move" %}
-        {% endif %}
+        {% set this_cell = loop.index %}
+
+        {% set ns = namespace(cell_property="") %}
+
+        {# Locate the game move that matches this cell: #}
+        {% for move in game.moves %}
+            {% set this_move = move.position.value %}
+            {% set this_move_sequence = move.move_sequence|string %}
+            {% if this_move == this_cell %}
+
+                {# Add class to cell, based on the move sequence: #}
+                {% set ns.cell_property="move_seq_" + this_move_sequence %}
+
+                {# Add class to cell if it's the last move of the sequence: #}
+                {% if last_move_position == this_cell %}
+                    {% set ns.cell_property= ns.cell_property + " last_move" %}
+                {% endif %}
+
+                {# Add class to cell if it's a winning move: #}
+                {% if this_cell in game.winning_pieces %}
+                    {% set ns.cell_property= ns.cell_property + " winning_piece" %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
         <div class="box">
 
             {% if cell == "1" %}
-                <p class="text-danger {{cell_property}}">X</p>
+                <p class="game-piece text-danger {{ns.cell_property}}">X</p>
             {% elif cell == "2" %}
-                <p class="text-primary {{cell_property}}">O</p>
+                <p class="game-piece text-primary {{ns.cell_property}}">O</p>
             {% elif game.status == enumGameStatus.IN_PROGRESS %}
                 <input type="radio" class="btn-check" name="position" id="position-{{ loop.index }}" autocomplete="off" value="{{ loop.index }}" required>
                 {% if game.next_move_player_number == 1 %}
@@ -84,14 +104,49 @@
 .box p {
     margin-bottom: 0;
 }
-.last_move {
+.game-board.in_progress .last_move {
     animation-name: animate_fade_in;
     animation-duration: 4s;
 }
+.game-board.finished:hover .game-piece {
+    opacity: 0;
+    animation-duration: 1s;
+    animation-name: animate_fade_in;
+    animation-fill-mode: forwards;
+}
+.game-board.finished:hover .game-piece.move_seq_1 {
+    animation-delay: 200ms;
+}
+.game-board.finished:hover .game-piece.move_seq_2 {
+    animation-delay: 400ms;
+}
+.game-board.finished:hover .game-piece.move_seq_3 {
+    animation-delay: 600ms;
+}
+.game-board.finished:hover .game-piece.move_seq_4 {
+    animation-delay: 800ms;
+}
+.game-board.finished:hover .game-piece.move_seq_5 {
+    animation-delay: 1000ms;
+}
+.game-board.finished:hover .game-piece.move_seq_6 {
+    animation-delay: 1200ms;
+}
+.game-board.finished:hover .game-piece.move_seq_7 {
+    animation-delay: 1400ms;
+}
+.game-board.finished:hover .game-piece.move_seq_8 {
+    animation-delay: 1600ms;
+}
+.game-board.finished:hover .game-piece.move_seq_9 {
+    animation-delay: 1800ms;
+}
+
 @keyframes animate_fade_in {
   from {opacity: 0;}
   to {opacity: 100;}
 }
+
 </style>
 
 

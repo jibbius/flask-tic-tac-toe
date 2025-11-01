@@ -15,6 +15,24 @@
             <label class="form-check-label" for="{{api_endpoint.handle}}_player_type_computer">Computer</label>
         </div>
     </div>
+    <div class="mb-3">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="{{api_endpoint.handle}}_bot_difficulty" id="{{api_endpoint.handle}}_bot_difficulty_easy" value="easy" required>
+            <label class="form-check-label" for="{{api_endpoint.handle}}_bot_difficulty_easy">Easy</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="{{api_endpoint.handle}}_bot_difficulty" id="{{api_endpoint.handle}}_bot_difficulty_medium" value="medium" required>
+            <label class="form-check-label" for="{{api_endpoint.handle}}_bot_difficulty_medium">Medium</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="{{api_endpoint.handle}}_bot_difficulty" id="{{api_endpoint.handle}}_bot_difficulty_hard" value="hard" required>
+            <label class="form-check-label" for="{{api_endpoint.handle}}_bot_difficulty_hard">Hard</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="{{api_endpoint.handle}}_bot_difficulty" id="{{api_endpoint.handle}}_bot_difficulty_expert" value="expert" required>
+            <label class="form-check-label" for="{{api_endpoint.handle}}_bot_difficulty_expert">Expert</label>
+        </div>
+    </div>
     <input class="btn btn-primary mt-3 mb-3" type="submit" value="{{ api_endpoint.method }}">
 </form>
 
@@ -26,7 +44,8 @@
         url = '{{api_endpoint.url()}}';
         data = {
             'name': document.getElementById('{{api_endpoint.handle}}_name').value,
-            'player_type': document.querySelector('input[name="{{api_endpoint.handle}}_player_type"]:checked').value
+            'player_type': document.querySelector('input[name="{{api_endpoint.handle}}_player_type"]:checked').value,
+            'bot_difficulty': document.querySelector('input[name="{{api_endpoint.handle}}_bot_difficulty"]:checked').value
         };
         fetch(url, {
             method: '{{api_endpoint.method}}',

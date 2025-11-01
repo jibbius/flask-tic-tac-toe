@@ -5,49 +5,13 @@
         <div class="container">
         <h1 class="mt-5">Home</h1>
         <p>
-            The intent for this project is to allow a user to play a game of Tic Tac Toe.
-            <br>
-            This is my final project for Python Programming course.
-            <br>
-            As part of this project, I am seeking to test my competencies with Flask and Persisting Data.
+            Let's play some Tic Tac Toe!
         </p>
-        <h2>Navigation</h2>
         <ul>
             <li><a href="{{url_for('ui.games_new')}}">New Game</a></li>
             <li><a href="{{url_for('ui.games_get_all')}}">Existing Games</a></li>
+            <li><a href="{{url_for('ui.about')}}">About</a></li>
             <li><a href="{{url_for('api_index.index')}}">API Index</a></li>
-        </ul>
-
-        <h2>Features</h2>
-        <h4>Delivered features</h4>
-        <ul>
-            <li>Ability to load initial list of <b>Players</b> from CSV file.</li>
-            <li>Ability to VIEW/ADD/UPDATE* to list of <b>Players</b> via API.
-            <br>* Note:
-                <ul>
-                    <li>'DELETE' has intentionally been excluded.</li>
-                    <li>It is anticipated that removing users will not be allowed.</li>
-                    <li>This is for the purpose of maintaining foreign key integrity.</li>
-                    <li>A logical delete (i.e. <code>Player.Deleted = 'Y'</code>) might eventually be added; but would utilise the UPDATE method rather than DELETE.</li>
-                </ul>
-            </li>
-            <li>HTML + JS forms to test the set of <b>Player</b> APIs.</li>
-            <li>Ability to synchronise list of <b>Players</b> back to CSV file.</li>
-            <li>Ability to create a <b>game</b> of Tic Tac Toe.</li>
-            <li>Ability to assign <b>players</b> to a <b>game</b>.</li>
-            <li>Ability for <b>HUMAN players</b> to submit <b>moves</b>, to progress a <b>game</b>.</li>
-            <li>Ability for <b>COMPUTER players</b> to submit <b>moves</b>, to progress a <b>game</b>.</li>
-            <li>Ability for a game to determine its winner.</li>
-            <li>Game results to be persisted.</li>
-            <li>Persistence layer to be migrated to database, rather than CSV.</li>
-            <li>A UI that is (more) usable by humans.</li>
-        </ul>
-        <h4>Planned features</h4>
-        <ul>
-            <li>Different difficulty levels for computer controlled players</li>
-            <li>UI Improvements</li>
-            <li>Ability to view historical game statistics (winner; state of game board).</li>
-            <li>Database performance tuning.</li>
         </ul>
 
         </div>

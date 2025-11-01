@@ -1,0 +1,45 @@
+{% extends "_base.html" %}
+{% block title %}Home{% endblock %}
+{% block main_content %}
+    <div class="flex-shrink-0">
+        <div class="container">
+        <h1 class="mt-5">About</h1>
+        <p>
+            This is my final project for General Assembly's Python Programming course.
+            <br>
+            As part of this project, I am seeking to;
+            <ul>
+                <li>Test my competencies with Flask and Persisting Data</li>
+                <li>Showcase an implementation of the <a href="https://en.wikipedia.org/wiki/Strategy_pattern">Strategy Pattern</a>
+                    <ul><li>I have used this design pattern, in the context of different computer-opponent difficulties</li></ul>
+            </ul>
+        </p>
+        <h2>Features</h2>
+<!--        <h4>Delivered features</h4>-->
+        <ul>
+            <li>Ability to seed initial list of <b>Players</b> from CSV file.</li>
+            <li>Persistence layer that leverages SQLAlchemy ORM and a SQLite database.</li>
+            <li>Different difficulty levels for computer-controlled players</li>
+            <li>Web UI for all basic game functions
+                <ul>
+                    <li>Ability to create a <b>game</b> of Tic Tac Toe.</li>
+                    <li>Ability to assign <b>players</b> to a <b>game</b>.</li>
+                    <li>Ability for <b>HUMAN players</b> to submit <b>moves</b>, to progress a <b>game</b>.</li>
+                    <li>Ability for <b>COMPUTER players</b> to submit <b>moves</b>, to progress a <b>game</b>.</li>
+                    <li>Ability for a game to determine its winner.</li>
+                </ul>
+            </li>
+            <li>Full JSON API catalogue, to; view game data, add/update players, and play tic tac toe.</li>
+            <li>HTML + JS forms to test APIs.</li>
+        </ul>
+<!--        <h4>Planned features</h4>-->
+<!--        <ul>-->
+
+<!--            <li>UI Improvements</li>-->
+<!--            <li>Ability to view historical game statistics (winner; state of game board).</li>-->
+<!--            <li>Database performance tuning.</li>-->
+<!--        </ul>-->
+
+        </div>
+    </div>
+{% endblock %}

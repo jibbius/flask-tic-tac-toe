@@ -15,6 +15,10 @@ def root():
     """Home page"""
     return render_template("index.html")
 
+@ui_bp.route("/about/", methods=["GET"])
+def about():
+    """About page"""
+    return render_template("ui_about.html")
 
 @ui_bp.route('/game/new')
 def games_new():
@@ -65,6 +69,10 @@ def games_get_by_id(game_id: int):
     if game_service.game:
         response['status'] = 200
         response['data'] = game_service.game.to_dict()
+        all_moves = []
+        for move in game_service.game.moves:
+            all_moves.append(move.position.value)
+
         return render_template(
             "ui_games_get_by_id.html",
             game=game_service.game,
@@ -72,7 +80,8 @@ def games_get_by_id(game_id: int):
             player_two=game_service.player_two,
             board=list(game_service.game.board_state),
             enumGameStatus=GameStatus,
-            last_move_position=game_service.get_last_move_position()
+            last_move_position=game_service.get_last_move_position(),
+            all_moves=list(all_moves)
         )
     else:
         response['status'] = 400  # Bad request
@@ -109,13 +118,13 @@ def games_moves_add(game_id: int):
     return "Unexpected error"
 
 
-@ui_bp.route('/game/join')
-def join_game():
-    """Join game page (placeholder)"""
-    return '<a href="/">Return to menu</a>'
-
-
-@ui_bp.route('/stats')
-def stats():
-    """Statistics page (placeholder)"""
-    return '<a href="/">Return to menu</a>'
+# @ui_bp.route('/game/join')
+# def join_game():
+#     """Join game page (placeholder)"""
+#     return '<a href="/">Return to menu</a>'
+#
+#
+# @ui_bp.route('/stats')
+# def stats():
+#     """Statistics page (placeholder)"""
+#     return '<a href="/">Return to menu</a>'

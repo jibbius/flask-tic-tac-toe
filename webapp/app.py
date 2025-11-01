@@ -61,6 +61,7 @@ def _setup_navigation(app):
         {"label": "New game", "function": "ui.games_new"},
         {"label": "Existing games", "function": "ui.games_get_all"},
         # {"label": "Statistics", "function": "ui.stats"},
+        {"label": "About", "function": "ui.about"},
         {"label": "API Index", "function": "api_index.index"}
     ])
 
