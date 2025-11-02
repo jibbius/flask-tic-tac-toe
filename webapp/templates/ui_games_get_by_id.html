@@ -79,74 +79,174 @@
 {% endif %}
 
 <style>
-.game-board
-{
-    width: 60%;
-    height: auto;
-    margin: 0 auto;
-    background-color: #000000;
-    color: #fff;
-    border: 6px solid #212529;
-    border-radius: 10px;
-    display: grid;
-    grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+/* --------------------------------------------------
+   Base page styles
+-------------------------------------------------- */
+body {
+  background: radial-gradient(circle at center, #f8f9fa 0%, #dee2e6 100%);
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
 }
-.box
-{
-    border: 6px solid #212529;
-    font-weight: bold;
-    font-size: 4em;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 124px;
+
+h1, h3 {
+  text-align: center;
 }
+
+a {
+  display: inline-block;
+  margin-top: 1rem;
+  text-decoration: none;
+  font-weight: 500;
+  color: #0d6efd;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #0a58ca;
+}
+
+/* --------------------------------------------------
+   Game board container
+-------------------------------------------------- */
+.game-board {
+  width: 80%;
+  max-width: 500px;
+  margin: 2rem auto;
+  background: #212529;
+  border: 8px solid #000;
+  border-radius: 16px;
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  box-shadow: 0 0 20px rgba(0,0,0,0.25);
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.game-board:hover {
+  transform: scale(1.02);
+}
+
+/* --------------------------------------------------
+   Each square
+-------------------------------------------------- */
+.box {
+  border: 3px solid #2b3035;
+  font-weight: bold;
+  font-size: 4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  color: #fff;
+  position: relative;
+  background: linear-gradient(145deg, #343a40, #212529);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.box:hover {
+  background: linear-gradient(145deg, #495057, #343a40);
+  transform: scale(1.03);
+}
+
 .box p {
-    margin-bottom: 0;
-}
-.game-board.in_progress .last_move {
-    animation-name: animate_fade_in;
-    animation-duration: 4s;
-}
-.game-board.finished:hover .game-piece {
-    opacity: 0;
-    animation-duration: 1s;
-    animation-name: animate_fade_in;
-    animation-fill-mode: forwards;
-}
-.game-board.finished:hover .game-piece.move_seq_1 {
-    animation-delay: 200ms;
-}
-.game-board.finished:hover .game-piece.move_seq_2 {
-    animation-delay: 400ms;
-}
-.game-board.finished:hover .game-piece.move_seq_3 {
-    animation-delay: 600ms;
-}
-.game-board.finished:hover .game-piece.move_seq_4 {
-    animation-delay: 800ms;
-}
-.game-board.finished:hover .game-piece.move_seq_5 {
-    animation-delay: 1000ms;
-}
-.game-board.finished:hover .game-piece.move_seq_6 {
-    animation-delay: 1200ms;
-}
-.game-board.finished:hover .game-piece.move_seq_7 {
-    animation-delay: 1400ms;
-}
-.game-board.finished:hover .game-piece.move_seq_8 {
-    animation-delay: 1600ms;
-}
-.game-board.finished:hover .game-piece.move_seq_9 {
-    animation-delay: 1800ms;
+  margin-bottom: 0;
 }
 
+/* --------------------------------------------------
+   Game pieces
+-------------------------------------------------- */
+.game-piece {
+  margin: 0;
+  opacity: 0.95;
+  text-shadow: 0 0 10px rgba(255,255,255,0.4);
+  transition: transform 0.2s ease;
+}
+
+/* X’s have a red neon glow */
+.text-danger {
+  color: #ff4b4b !important;
+  text-shadow: 0 0 15px rgba(255, 80, 80, 0.7);
+}
+
+/* O’s have a blue neon glow */
+.text-primary {
+  color: #4bb2ff !important;
+  text-shadow: 0 0 15px rgba(80, 150, 255, 0.7);
+}
+
+/* --------------------------------------------------
+   Winning piece animation
+-------------------------------------------------- */
+.winning_piece {
+  animation: pulseGlow 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0%   { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.1); opacity: 0.85; }
+}
+
+/* Red glow for X winners */
+.text-danger.winning_piece {
+  text-shadow: 0 0 20px rgba(255, 80, 80, 0.9),
+               0 0 40px rgba(255, 80, 80, 0.5);
+}
+
+/* Blue glow for O winners */
+.text-primary.winning_piece {
+  text-shadow: 0 0 20px rgba(80, 150, 255, 0.9),
+               0 0 40px rgba(80, 150, 255, 0.5);
+}
+
+/* --------------------------------------------------
+   Animations & transitions
+-------------------------------------------------- */
 @keyframes animate_fade_in {
-  from {opacity: 0;}
-  to {opacity: 100;}
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
+/* Highlight last move during play */
+.game-board.in_progress .last_move {
+  animation: animate_fade_in 1s;
+}
+
+/* Sequential fade-in when hovering a finished game */
+.game-board.finished:hover .game-piece {
+  opacity: 0;
+  animation: fadeIn 0.4s forwards;
+}
+
+.game-board.finished:hover .move_seq_1 { animation-delay: 0.1s; }
+.game-board.finished:hover .move_seq_2 { animation-delay: 0.2s; }
+.game-board.finished:hover .move_seq_3 { animation-delay: 0.3s; }
+.game-board.finished:hover .move_seq_4 { animation-delay: 0.4s; }
+.game-board.finished:hover .move_seq_5 { animation-delay: 0.5s; }
+.game-board.finished:hover .move_seq_6 { animation-delay: 0.6s; }
+.game-board.finished:hover .move_seq_7 { animation-delay: 0.7s; }
+.game-board.finished:hover .move_seq_8 { animation-delay: 0.8s; }
+.game-board.finished:hover .move_seq_9 { animation-delay: 0.9s; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* --------------------------------------------------
+   Dark mode support
+-------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: radial-gradient(circle at center, #111 0%, #222 100%);
+    color: #f8f9fa;
+  }
+
+  .game-board {
+    border-color: #000;
+    background: #1a1a1a;
+  }
+}
 </style>
 
 

@@ -1,6 +1,6 @@
 """UI routes for web interface"""
 
-from flask import Blueprint, render_template, request, url_for, flash, Markup
+from flask import Blueprint, render_template, request, url_for, flash, Markup, redirect
 
 from webapp.services import GameService
 from webapp.helpers import GameStatus
@@ -41,8 +41,9 @@ def games_add():
                 player_two_id=int(player_two_id)
             )
             game = game_service.create_game()
-            game_url = url_for('ui.games_get_by_id', game_id=game.id)
-            flash(Markup(f"Game created successfully: <a href='{game_url}'>Join game</a>"), 'success')
+            flash(f"Game created successfully!", 'success')
+            # Redirect immediately to the new game
+            return redirect(url_for('ui.games_get_by_id', game_id=game.id))
         except ValueError as err:
             error_message = err.args[0]
     
@@ -50,8 +51,8 @@ def games_add():
         if not error_message:
             error_message = "Unexpected Error"
         flash(f"{error_message}", 'error')
-    
-    return render_template("ui_games_get_all.html", all_games=Game.get_games())
+        # Keep fallback to list of all games if creation failed
+        return render_template("ui_games_get_all.html", all_games=Game.get_games())
 
 
 @ui_bp.route("/games/", methods=["GET"])

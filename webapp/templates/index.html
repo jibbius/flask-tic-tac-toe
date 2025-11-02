@@ -1,19 +1,49 @@
 {% extends "_base.html" %}
 {% block title %}Home{% endblock %}
 {% block main_content %}
-    <div class="flex-shrink-0">
-        <div class="container">
-        <h1 class="mt-5">Home</h1>
-        <p>
-            Let's play some Tic Tac Toe!
-        </p>
-        <ul>
-            <li><a href="{{url_for('ui.games_new')}}">New Game</a></li>
-            <li><a href="{{url_for('ui.games_get_all')}}">Existing Games</a></li>
-            <li><a href="{{url_for('ui.about')}}">About</a></li>
-            <li><a href="{{url_for('api_index.index')}}">API Index</a></li>
-        </ul>
+<div class="flex-shrink-0">
+  <div class="container text-center mt-5">
 
+    <h1 class="fw-bold display-5 mb-3 text-primary">Let's Play Some Tic Tac Toe!</h1>
+    <p class="lead text-muted mb-4">Challenge yourself, invite a friend, or revisit an old match!</p>
+
+    <div class="row justify-content-center g-4">
+      <!-- New Game -->
+      <div class="col-10 col-sm-6 col-md-3">
+        <div class="game-card p-4 rounded-4 shadow-sm h-100">
+          <div class="fs-1 mb-2">🎮</div>
+          <h5 class="fw-semibold mb-3">New Game</h5>
+          <a href="{{ url_for('ui.games_new') }}" class="btn btn-primary w-100">Start</a>
         </div>
+      </div>
+
+      <!-- Existing Games -->
+      <div class="col-10 col-sm-6 col-md-3">
+        <div class="game-card p-4 rounded-4 shadow-sm h-100">
+          <div class="fs-1 mb-2">🕹️</div>
+          <h5 class="fw-semibold mb-3">Existing Games</h5>
+          <a href="{{ url_for('ui.games_get_all') }}" class="btn btn-primary w-100">Continue</a>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="col-10 col-sm-6 col-md-3">
+        <div class="game-card p-4 rounded-4 shadow-sm h-100">
+          <div class="fs-1 mb-2">📖</div>
+          <h5 class="fw-semibold mb-3">About</h5>
+          <a href="{{ url_for('ui.about') }}" class="btn btn-primary w-100">Learn More</a>
+        </div>
+      </div>
+
+      <!-- API Index -->
+      <div class="col-10 col-sm-6 col-md-3">
+        <div class="game-card p-4 rounded-4 shadow-sm h-100">
+          <div class="fs-1 mb-2">⚙️</div>
+          <h5 class="fw-semibold mb-3">API Index</h5>
+          <a href="{{ url_for('api_index.index') }}" class="btn btn-primary w-100">Explore</a>
+        </div>
+      </div>
     </div>
+  </div>
+</div>
 {% endblock %}

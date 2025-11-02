@@ -8,13 +8,21 @@ This is my final project for General Assembly's Python Programming course.
 
 As part of this project, I am seeking to test my competencies with Flask and Persisting Data.
 
-## Deployment Steps
+### Clone repo
 
-### Prerequisites
+Clone via either HTTPS or SSH:
 
+    #### HTTPS
     mkdir flask-tic-tac-toe
     git clone https://github.com/jibbius/flask-tic-tac-toe.git flask-tic-tac-toe
     cd flask-tic-tac-toe
+
+    #SSH
+    mkdir flask-tic-tac-toe
+    git clone git@github.com:jibbius/flask-tic-tac-toe.git flask-tic-tac-toe
+    cd flask-tic-tac-toe
+
+### Install Prerequisites
 
     sudo apt install python3
     sudo apt install python3-pip
@@ -24,6 +32,7 @@ As part of this project, I am seeking to test my competencies with Flask and Per
     pip install -r requirements.txt
 
 ### Execute
+
     source .venv/bin/activate
     python3 flask_app.py
 
@@ -40,7 +49,7 @@ As part of this project, I am seeking to test my competencies with Flask and Per
 ## Running
 
 - By default, runs on [http://127.0.0.1:5000](http://127.0.0.1:5000)
-- Start a new game 
+- Start a new game
 
 ## Features
 
@@ -73,11 +82,12 @@ The application includes the following features:
 - 3D tic tac toe
 
 ## Acknowledgments
-- The Team at General Assembly, and the Python Programming course.
+
+- The Team at General Assembly and the Python Programming course;
   - Geoff
   - Arnab
   - Lillian
 - Mastering Flask Web Development (book by Daniel Gaspar + Jack Stouffer)
-- Software Design in Python (YouTube series by  ArjanCodes)
+- Software Design in Python (YouTube series by ArjanCodes)
 - CodePen.io
 - Twitter Bootstrap
